@@ -1,29 +1,30 @@
 import { useState } from 'react';
-import { hello_backend } from 'declarations/hello_backend';
+import { hello_backend } from 'declarations/hello_backend'; // Ensure this import matches your actual backend module
 
 function App() {
-  const [greeting, setGreeting] = useState('');
+  const [error, setError] = useState(null);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const name = event.target.elements.name.value;
-    hello_backend.greet(name).then((greeting) => {
-      setGreeting(greeting);
-    });
-    return false;
+  async function handleFetchDiscordLink() {
+    try {
+      const discordLink = await hello_backend.getDiscordLink();
+      if (discordLink.startsWith('https://discord.gg/')) {
+        window.location.href = discordLink;
+      } else {
+        setError('The fetched data is not a valid Discord link.');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Failed to fetch Discord link. Please try again later.');
+    }
   }
 
   return (
-    <main>
-      <img src="/logo2.svg" alt="DFINITY logo" />
-      <br />
-      <br />
-      <form action="#" onSubmit={handleSubmit}>
-        <label htmlFor="name">Enter your name: &nbsp;</label>
-        <input id="name" alt="Name" type="text" />
-        <button type="submit">Click Me!</button>
-      </form>
-      <section id="greeting">{greeting}</section>
+    <main style={{ textAlign: 'center', padding: '20px' }}>
+      <h1>Welcome to The CU Lounge</h1>
+      <button onClick={handleFetchDiscordLink} style={{ fontSize: '16px', padding: '10px 20px', marginTop: '20px' }}>
+        Join Our Discord
+      </button>
+      {error && <p style={{ color: 'red', marginTop: '20px' }}>{error}</p>}
     </main>
   );
 }
